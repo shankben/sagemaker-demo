@@ -34,6 +34,7 @@ if __name__ == "__main__":
     parser.add_argument("--warmup_steps", type=int, default=500)
     parser.add_argument("--model_name", type=str)
     parser.add_argument("--learning_rate", type=str, default=5e-5)
+    parser.add_argument("--logging_steps", type=int, default=10)
     parser.add_argument("--output-data-dir", type=str, default=os.environ["SM_OUTPUT_DATA_DIR"])
     parser.add_argument("--model-dir", type=str, default=os.environ["SM_MODEL_DIR"])
     parser.add_argument("--n_gpus", type=str, default=os.environ["SM_NUM_GPUS"])
@@ -64,6 +65,12 @@ if __name__ == "__main__":
         preds = pred.predictions.argmax(-1)
         precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average = "binary")
         acc = accuracy_score(labels, preds)
+               
+        print(f"'eval_accuracy': {acc}")
+        print(f"'eval_f1': {f1}")
+        print(f"'eval_precision': {precision}")
+        print(f"'eval_recall': {recall}")
+        
         return {
             "accuracy": acc, 
             "f1": f1, 
@@ -81,7 +88,8 @@ if __name__ == "__main__":
         warmup_steps = args.warmup_steps,
         evaluation_strategy = "epoch",
         logging_dir = f"{args.output_data_dir}/logs",
-        learning_rate = float(args.learning_rate),
+        logging_steps = args.logging_steps,
+        learning_rate = float(args.learning_rate)
     )
 
     trainer = Trainer(
