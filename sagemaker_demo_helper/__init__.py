@@ -151,7 +151,7 @@ class SageMakerDemoHelper:
         return HuggingFace(**{
             **self.params,
             **self.spot_params, 
-            **self.distributed_params,
+            **self.dataparallel_params,
             "metric_definitions": self.metric_definitions,
             "hyperparameters": {
                 **self.hyperparams,
@@ -162,7 +162,7 @@ class SageMakerDemoHelper:
     def use_distributed(self):
         return HuggingFace(**{
             **self.params,
-            **self.distributed_params,
+            **self.dataparallel_params,
             "metric_definitions": self.metric_definitions
         })
 
