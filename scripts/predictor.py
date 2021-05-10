@@ -26,13 +26,13 @@ def model_fn(model_dir):
 
 def predict_fn(input_data, model):
     tokenized = tokenizer(
-        input_data['text'],
+        input_data["text"],
         add_special_tokens = True,
         return_token_type_ids = False,
         return_attention_mask = True,
         padding = "max_length",
         truncation = True,
-        return_tensors='pt',
+        return_tensors = "pt"
     )
     prediction = model(tokenized["input_ids"], tokenized["attention_mask"])
     return CLASS_NAMES[prediction]
