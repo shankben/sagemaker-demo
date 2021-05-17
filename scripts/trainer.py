@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     args, _ = parser.parse_known_args()
 
-    # Set up logging
+    ## Set up logging
     logger = logging.getLogger(__name__)
 
     logging.basicConfig(
@@ -52,24 +52,23 @@ if __name__ == "__main__":
         format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
-    # load datasets
+    ## Load datasets
     train_dataset = load_from_disk(args.training_dir)
     test_dataset = load_from_disk(args.test_dir)
 
     logger.info(f" loaded train_dataset length is: {len(train_dataset)}")
     logger.info(f" loaded test_dataset length is: {len(test_dataset)}")
 
-    # compute metrics function for binary classification
     def compute_metrics(pred):
         labels = pred.label_ids
         preds = pred.predictions.argmax(-1)
         precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average = "binary")
         acc = accuracy_score(labels, preds)
                
-        print(f"'eval_accuracy': {acc}")
-        print(f"'eval_f1': {f1}")
-        print(f"'eval_precision': {precision}")
-        print(f"'eval_recall': {recall}")
+#         print(f"'eval_accuracy': {acc}")
+#         print(f"'eval_f1': {f1}")
+#         print(f"'eval_precision': {precision}")
+#         print(f"'eval_recall': {recall}")
         
         return {
             "accuracy": acc, 
@@ -78,26 +77,22 @@ if __name__ == "__main__":
             "recall": recall
         }
 
-    model = AutoModelForSequenceClassification.from_pretrained(args.model_name)
-
-    training_args = TrainingArguments(
-        output_dir = args.model_dir,
-        num_train_epochs = args.epochs,
-        per_device_train_batch_size = args.train_batch_size,
-        per_device_eval_batch_size = args.eval_batch_size,
-        warmup_steps = args.warmup_steps,
-        evaluation_strategy = "epoch",
-        logging_dir = f"{args.output_data_dir}/logs",
-        logging_steps = args.logging_steps,
-        learning_rate = float(args.learning_rate)
-    )
-
     trainer = Trainer(
-        model = model,
-        args = training_args,
+        model = AutoModelForSequenceClassification.from_pretrained(args.model_name),
         compute_metrics = compute_metrics,
         train_dataset = train_dataset,
-        eval_dataset = test_dataset
+        eval_dataset = test_dataset,
+        args = TrainingArguments(
+            output_dir = args.model_dir,
+            num_train_epochs = args.epochs,
+            per_device_train_batch_size = args.train_batch_size,
+            per_device_eval_batch_size = args.eval_batch_size,
+            warmup_steps = args.warmup_steps,
+            evaluation_strategy = "epoch",
+            logging_dir = f"{args.output_data_dir}/logs",
+            logging_steps = args.logging_steps,
+            learning_rate = float(args.learning_rate)
+        )
     )
 
     trainer.train()
